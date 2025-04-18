@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  LEAD
+  TEAM
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  ON_PROGRESS
+  DONE
+  REJECT
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tasksCreated  Task[]   @relation("LeadTasks")
+  tasksAssigned Task[]   @relation("TeamTasks")
+  logs          TaskLog[]
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus @default(NOT_STARTED)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  leadId Int
+  teamId Int?
+  lead User @relation("LeadTasks", fields: [leadId], references: [id])
+  team User? @relation("TeamTasks", fields: [teamId], references: [id])
+  logs TaskLog[]
+}
+
+model TaskLog {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  userId    Int?
+  action    String
+  details   String?
+  timestamp DateTime @default(now())
+  task      Task @relation(fields: [taskId], references: [id])
+  user      User? @relation(fields: [userId], references: [id])
+}
