@@ -38,10 +38,7 @@ export async function GET(
     if (!task) {
       return Response.json({ message: 'Task not found' }, { status: 404 })
     }
-    if (
-      (user.role === 'LEAD' && task.leadId !== user.id) ||
-      (user.role === 'TEAM' && task.teamId !== user.id)
-    ) {
+    if (user.role === 'TEAM' && task.teamId !== user.id) {
       return Response.json({ message: 'Forbidden' }, { status: 403 })
     }
 

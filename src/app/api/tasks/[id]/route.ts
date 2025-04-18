@@ -35,10 +35,7 @@ export async function PATCH(
     const existing = await prisma.task.findUnique({ where: { id: taskId } })
     if (!existing)
       return Response.json({ message: 'Not found' }, { status: 404 })
-    if (
-      (user.role === 'LEAD' && existing.leadId !== user.id) ||
-      (user.role === 'TEAM' && existing.teamId !== user.id)
-    ) {
+    if (user.role === 'TEAM' && existing.teamId !== user.id) {
       return Response.json({ message: 'Forbidden' }, { status: 403 })
     }
 
